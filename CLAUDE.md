@@ -31,6 +31,9 @@ construindo base de engenharia de dados. Portanto:
   rate limits no GenAI. Código deve processar incrementalmente (mês a mês)
 - Desenvolvimento local: Windows, VS Code, Python 3.13, Git
 - GitHub é a fonte de verdade; Databricks puxa via Git folder
+- Edição e renomeio de arquivos SEMPRE pelo VS Code e terminal local.
+  Nunca editar diretamente pela interface web do GitHub ou do Databricks,
+  para evitar divergência de histórico e merge conflicts.
 
 ## Estrutura
 - src/ingestao/    scripts de download e upload para Volumes
