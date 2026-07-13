@@ -37,4 +37,48 @@ workspace pelo resto do dia, e limites de taxa nas AI Functions.
 
 ## Decisão
 
-O projeto será desenvolvido no Databricks
+O projeto será desenvolvido no Databricks Free Edition, escolhido para
+desenvolver domínio prático em Spark, Delta Lake, Unity Catalog e nas
+AI Functions nativas da plataforma, complementando um projeto anterior
+já construído em GCP e BigQuery.
+
+A ingestão será híbrida: o download dos arquivos CSV da fonte roda fora
+do Databricks (em ambiente local ou Colab), e o upload do arquivo bruto
+para um Volume do Unity Catalog alimenta a camada Bronze. O
+processamento a partir da Bronze roda dentro do Databricks.
+
+## Consequências
+
+Positivas:
+
+- Separação entre ingestão e processamento. Trazer o dado para perto
+  (download) fica desacoplado de transformar o dado (Spark). Esse é um
+  princípio de arquitetura que vale além deste projeto e em qualquer
+  modelo de cobrança.
+- Eficiência de custo. O modelo de cobrança do Databricks é por tempo de
+  compute consumido (DBU por segundo), não por dado processado. Baixar
+  arquivo de dentro de um compute pago significaria pagar processamento
+  por uma tarefa de espera de rede. A ingestão híbrida evita isso, e o
+  mesmo raciocínio protege a cota diária no Free Edition.
+- Portabilidade. O passo de download funciona em qualquer ambiente
+  (Colab hoje, um orquestrador amanhã), sem acoplamento à plataforma.
+
+Negativas ou custos assumidos:
+
+- A ingestão passa a ter duas etapas em vez de uma, e exige um ponto de
+  execução externo ao Databricks para o download.
+- Como o download não roda no notebook, a linhagem completa do dado
+  precisa ser registrada com cuidado na Bronze (arquivo de origem e data
+  de ingestão) para não perder rastreabilidade.
+
+## Alternativas consideradas
+
+- Ingestão inteiramente dentro do Databricks. Descartada como padrão
+  apesar de a rede estar aberta (Spike 1). É mais simples por ter um
+  ambiente só, mas gasta compute pago com espera de rede e acopla a
+  ingestão à plataforma. A simplicidade não compensou a perda de
+  portabilidade e a ineficiência de custo.
+- Manter o projeto no GCP e BigQuery. Descartada porque já existe um
+  projeto de portfólio nessa stack. Escolher o Databricks amplia a
+  cobertura de ferramentas do portfólio e desenvolve competência em
+  Spark e nas AI Functions, que são requisitos frequentes de mercado.
